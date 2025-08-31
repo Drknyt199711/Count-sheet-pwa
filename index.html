@@ -3,445 +3,629 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Counting Sheet PWA</title>
-    <link rel="manifest" href="/manifest.json">
-    <script>
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('/service-worker.js')
-                    .then(reg => console.log('Service Worker registered.'))
-                    .catch(err => console.log('Service Worker registration failed:', err));
-            });
-        }
-    </script>
-
+    <title>Mobile Counting Sheet</title>
+    <link rel="manifest" href="manifest.json">
     <style>
         :root {
-            --primary-color: #007bff;
-            --secondary-color: #6c757d;
-            --success-color: #28a745;
-            --danger-color: #dc3545;
-            --border-color: #dee2e6;
-            --selected-color: #fff3cd;
+            --primary-color: #2c3e50;
+            --secondary-color: #3498db;
+            --accent-color: #e74c3c;
+            --light-color: #ecf0f1;
+            --dark-color: #34495e;
+            --success-color: #2ecc71;
         }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        
+        * {
+            box-sizing: border-box;
             margin: 0;
-            padding: 10px;
-            background-color: #f8f9fa;
-            color: #212529;
-            touch-action: pan-x pan-y;
+            padding: 0;
         }
-
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f5f7fa;
+            padding: 0;
+            margin: 0;
+        }
+        
         .container {
-            max-width: 900px;
-            margin: auto;
+            max-width: 100%;
+            padding: 15px;
+            margin: 0 auto;
         }
-
-        .header {
-            display: flex;
-            flex-wrap: wrap;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 20px;
-            padding: 10px;
-            background-color: #e9ecef;
-            border-radius: 5px;
-        }
-
-        .header input, .header button {
-            padding: 8px;
-            border: 1px solid var(--border-color);
-            border-radius: 4px;
-            font-size: 16px;
-        }
-
-        .header button {
+        
+        header {
             background-color: var(--primary-color);
             color: white;
-            cursor: pointer;
-            border: none;
-            transition: background-color 0.2s;
+            padding: 15px;
+            border-radius: 8px 8px 0 0;
+            margin-bottom: 0;
         }
-
-        .header button:hover {
-            background-color: #0056b3;
-        }
-
-        .header #time-interval {
-            flex-grow: 1;
-            text-align: right;
-            font-weight: bold;
-            color: var(--secondary-color);
-        }
-
-        .table-container {
-            overflow: auto;
-            max-height: 70vh;
-            border: 1px solid var(--border-color);
-            border-radius: 5px;
-            margin-bottom: 20px;
-            background-color: white;
-            -webkit-overflow-scrolling: touch;
-            touch-action: pan-x pan-y;
-        }
-
-        #data-table {
-            border-collapse: separate;
-            border-spacing: 0;
-            width: 100%;
-            table-layout: auto; /* Changed to auto for content fitting */
-            transform-origin: 0 0;
-        }
-
-        #data-table th, #data-table td {
-            padding: 8px;
+        
+        h1 {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
             text-align: center;
-            white-space: nowrap;
-            border: 1px solid var(--border-color);
-        }
-
-        #data-table th {
-            background-color: #e9ecef;
-            position: sticky;
-            top: 0;
-            z-index: 2;
-            font-weight: bold;
         }
         
-        #data-table th:first-child {
-            position: sticky;
-            left: 0;
-            background-color: #e9ecef;
-            z-index: 3;
-        }
-
-        #data-table tbody td:first-child {
-            position: sticky;
-            left: 0;
-            background-color: #f8f9fa;
-            font-weight: bold;
-            z-index: 1;
-        }
-
-        #data-table td.selected {
-            background-color: var(--selected-color);
-            outline: 2px solid var(--primary-color);
-            outline-offset: -2px;
-        }
-
-        .controls {
+        .time-controls {
             display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
             justify-content: center;
-            gap: 20px;
-            margin-bottom: 20px;
-        }
-
-        .controls button {
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            border: none;
-            color: white;
-            font-size: 30px;
-            font-weight: bold;
-            cursor: pointer;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-
-        .controls button#increment {
-            background-color: var(--success-color);
-        }
-
-        .controls button#decrement {
-            background-color: var(--danger-color);
+            margin-bottom: 15px;
         }
         
-        .file-buttons {
+        .time-input {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .time-input label {
+            font-size: 0.8rem;
+            margin-bottom: 5px;
+        }
+        
+        .time-input input {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        
+        button {
+            padding: 8px 15px;
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        button:hover {
+            background-color: #2980b9;
+        }
+        
+        .action-buttons {
             display: flex;
             justify-content: center;
             gap: 10px;
-        }
-
-        .file-buttons button {
-            padding: 10px 20px;
-            border-radius: 5px;
-            border: 1px solid var(--secondary-color);
-            background-color: white;
-            color: var(--secondary-color);
-            cursor: pointer;
+            margin-top: 15px;
         }
         
-        .file-buttons input[type="file"] {
-            display: none;
+        .action-buttons button {
+            flex: 1;
+        }
+        
+        .export-btn {
+            background-color: var(--success-color);
+        }
+        
+        .export-btn:hover {
+            background-color: #27ae60;
+        }
+        
+        .import-btn {
+            background-color: var(--accent-color);
+        }
+        
+        .import-btn:hover {
+            background-color: #c0392b;
+        }
+        
+        .table-container {
+            max-height: 70vh;
+            overflow: auto;
+            border: 1px solid #ddd;
+            margin-top: 0;
+            border-radius: 0 0 8px 8px;
+            background-color: white;
+            position: relative;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            transform-origin: top left;
+        }
+        
+        th, td {
+            padding: 10px;
+            text-align: center;
+            border: 1px solid #ddd;
+            min-width: 60px;
+        }
+        
+        th {
+            background-color: var(--dark-color);
+            color: white;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        
+        .time-column {
+            background-color: var(--dark-color);
+            color: white;
+            position: sticky;
+            left: 0;
+            z-index: 5;
+            min-width: 80px;
+        }
+        
+        tbody tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        
+        tbody tr:hover {
+            background-color: #f1f1f1;
+        }
+        
+        .selected {
+            background-color: #ffeaa7 !important;
+            border: 2px solid #fdcb6e !important;
+        }
+        
+        .counter-controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 15px 0;
+        }
+        
+        .counter-btn {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .decrement {
+            background-color: var(--accent-color);
+        }
+        
+        .increment {
+            background-color: var(--success-color);
+        }
+        
+        .zoom-controls {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 10px 0;
+        }
+        
+        .zoom-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 20px;
+            padding: 10px;
+            font-size: 0.8rem;
+            color: #7f8c8d;
+        }
+        
+        /* Responsive styles */
+        @media (max-width: 600px) {
+            .time-controls {
+                flex-direction: column;
+            }
+            
+            th, td {
+                padding: 6px;
+                font-size: 0.9rem;
+            }
+            
+            h1 {
+                font-size: 1.3rem;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="header">
-            <label for="start-time">Start Time:</label>
-            <input type="time" id="start-time" value="09:00">
-            <label for="end-time">End Time:</label>
-            <input type="time" id="end-time" value="17:00">
-            <button id="generate-btn">Generate</button>
-            <div id="time-interval"></div>
-        </div>
-
-        <div class="table-container">
-            <table id="data-table">
+        <header>
+            <h1>Mobile Counting Sheet</h1>
+            <div class="time-controls">
+                <div class="time-input">
+                    <label for="start-time">Start Time</label>
+                    <input type="time" id="start-time" value="09:00">
+                </div>
+                <div class="time-input">
+                    <label for="end-time">End Time</label>
+                    <input type="time" id="end-time" value="16:00">
+                </div>
+                <button id="generate-btn">Generate</button>
+            </div>
+        </header>
+        
+        <div class="table-container" id="table-container">
+            <table id="counting-table">
                 <thead>
                     <tr>
-                        <th>Time</th>
-                        <th>Person/vehicle in</th>
-                        <th>Person/vehicle out</th>
-                        <th>Delivery person/commercial vehicle in</th>
-                        <th>Delivery person/commercial vehicle out</th>
+                        <th class="time-column">Time</th>
+                        <th>Person/Vehicle In</th>
+                        <th>Person/Vehicle Out</th>
+                        <th>Delivery/Commercial In</th>
+                        <th>Delivery/Commercial Out</th>
                     </tr>
                 </thead>
-                <tbody></tbody>
+                <tbody>
+                    <!-- Table content will be generated here -->
+                </tbody>
             </table>
         </div>
-
-        <div class="controls">
-            <button id="decrement">-</button>
-            <button id="increment">+</button>
+        
+        <div class="counter-controls">
+            <button class="counter-btn decrement" id="decrement-btn">-</button>
+            <button class="counter-btn increment" id="increment-btn">+</button>
         </div>
         
-        <div class="file-buttons">
-            <button id="export-btn">Export to CSV</button>
-            <input type="file" id="import-file-input" accept=".csv">
-            <button id="import-btn">Import CSV</button>
+        <div class="zoom-controls">
+            <button class="zoom-btn" id="zoom-out">-</button>
+            <button class="zoom-btn" id="zoom-reset">Reset</button>
+            <button class="zoom-btn" id="zoom-in">+</button>
         </div>
+        
+        <div class="action-buttons">
+            <button class="export-btn" id="export-btn">Export to CSV</button>
+            <button class="import-btn" id="import-btn">Import CSV</button>
+        </div>
+        
+        <footer>
+            <p>Select a cell to edit its value. Use +/- buttons or type directly.</p>
+        </footer>
     </div>
-
+    
+    <input type="file" id="file-input" style="display: none;" accept=".csv">
+    
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const startTimeInput = document.getElementById('start-time');
-            const endTimeInput = document.getElementById('end-time');
+        document.addEventListener('DOMContentLoaded', function() {
+            // Variables to manage state
+            let selectedCell = null;
+            let currentZoom = 1;
+            const tableContainer = document.getElementById('table-container');
+            const tableBody = document.querySelector('#counting-table tbody');
             const generateBtn = document.getElementById('generate-btn');
-            const timeIntervalDisplay = document.getElementById('time-interval');
-            const tableBody = document.querySelector('#data-table tbody');
-            const tableContainer = document.querySelector('.table-container');
-            const dataTable = document.getElementById('data-table');
-            const incrementBtn = document.getElementById('increment');
-            const decrementBtn = document.getElementById('decrement');
+            const decrementBtn = document.getElementById('decrement-btn');
+            const incrementBtn = document.getElementById('increment-btn');
             const exportBtn = document.getElementById('export-btn');
             const importBtn = document.getElementById('import-btn');
-            const importFileInput = document.getElementById('import-file-input');
-
-            let selectedCell = null;
-
-            // PWA Service Worker Registration (requires a separate file)
-            if ('serviceWorker' in navigator) {
-                window.addEventListener('load', () => {
-                    // This is commented out as the request is for a single HTML file.
-                    /*
-                    navigator.serviceWorker.register('/service-worker.js').then(registration => {
-                        console.log('SW registered: ', registration);
-                    }).catch(registrationError => {
-                        console.log('SW registration failed: ', registrationError);
-                    });
-                    */
+            const fileInput = document.getElementById('file-input');
+            const zoomInBtn = document.getElementById('zoom-in');
+            const zoomOutBtn = document.getElementById('zoom-out');
+            const zoomResetBtn = document.getElementById('zoom-reset');
+            
+            // Initialize with sample data
+            generateTable();
+            
+            // Event listeners
+            generateBtn.addEventListener('click', generateTable);
+            decrementBtn.addEventListener('click', decrementCell);
+            incrementBtn.addEventListener('click', incrementCell);
+            exportBtn.addEventListener('click', exportToCSV);
+            importBtn.addEventListener('click', () => fileInput.click());
+            fileInput.addEventListener('change', importFromCSV);
+            
+            // Zoom controls
+            zoomInBtn.addEventListener('click', () => adjustZoom(0.1));
+            zoomOutBtn.addEventListener('click', () => adjustZoom(-0.1));
+            zoomResetBtn.addEventListener('click', resetZoom);
+            
+            // Add pinch to zoom for touch devices
+            let initialDistance = null;
+            tableContainer.addEventListener('touchstart', function(e) {
+                if (e.touches.length === 2) {
+                    e.preventDefault();
+                    initialDistance = Math.hypot(
+                        e.touches[0].clientX - e.touches[1].clientX,
+                        e.touches[0].clientY - e.touches[1].clientY
+                    );
+                }
+            });
+            
+            tableContainer.addEventListener('touchmove', function(e) {
+                if (e.touches.length === 2) {
+                    e.preventDefault();
+                    const currentDistance = Math.hypot(
+                        e.touches[0].clientX - e.touches[1].clientX,
+                        e.touches[0].clientY - e.touches[1].clientY
+                    );
+                    
+                    if (initialDistance) {
+                        const zoomFactor = currentDistance / initialDistance;
+                        adjustZoom(zoomFactor - 1);
+                    }
+                    
+                    initialDistance = currentDistance;
+                }
+            });
+            
+            tableContainer.addEventListener('touchend', function() {
+                initialDistance = null;
+            });
+            
+            // Mouse wheel zoom
+            tableContainer.addEventListener('wheel', function(e) {
+                if (e.ctrlKey) {
+                    e.preventDefault();
+                    adjustZoom(e.deltaY * -0.01);
+                }
+            }, { passive: false });
+            
+            // Generate table based on time inputs
+            function generateTable() {
+                const startTime = document.getElementById('start-time').value;
+                const endTime = document.getElementById('end-time').value;
+                
+                if (!startTime || !endTime) {
+                    alert('Please select both start and end times');
+                    return;
+                }
+                
+                const start = parseTime(startTime);
+                const end = parseTime(endTime);
+                
+                if (start >= end) {
+                    alert('End time must be after start time');
+                    return;
+                }
+                
+                // Clear existing table body
+                tableBody.innerHTML = '';
+                
+                // Generate time intervals
+                const intervals = generateTimeIntervals(start, end);
+                
+                // Create rows for each time interval
+                intervals.forEach(time => {
+                    const row = document.createElement('tr');
+                    
+                    // Time cell
+                    const timeCell = document.createElement('td');
+                    timeCell.textContent = time;
+                    timeCell.className = 'time-column';
+                    row.appendChild(timeCell);
+                    
+                    // Data cells
+                    for (let i = 0; i < 4; i++) {
+                        const dataCell = document.createElement('td');
+                        dataCell.textContent = '0';
+                        dataCell.addEventListener('click', () => selectCell(dataCell));
+                        dataCell.addEventListener('dblclick', () => editCell(dataCell));
+                        dataCell.addEventListener('keydown', handleCellKeydown);
+                        row.appendChild(dataCell);
+                    }
+                    
+                    tableBody.appendChild(row);
                 });
             }
-
-            function parseTime(timeString) {
-                const [hours, minutes] = timeString.split(':').map(Number);
+            
+            // Parse time string to minutes
+            function parseTime(timeStr) {
+                const [hours, minutes] = timeStr.split(':').map(Number);
                 return hours * 60 + minutes;
             }
-
+            
+            // Format minutes to time string
             function formatTime(minutes) {
-                const hours = Math.floor(minutes / 60) % 24;
+                const hours = Math.floor(minutes / 60);
                 const mins = minutes % 60;
-                const paddedHours = String(hours).padStart(2, '0');
-                const paddedMins = String(mins).padStart(2, '0');
-                return `${paddedHours}:${paddedMins}`;
+                return `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}`;
             }
-
-            function calculateInterval(start, end) {
-                const startMinutes = parseTime(start);
-                const endMinutes = parseTime(end);
-                let diff = endMinutes - startMinutes;
-                if (diff < 0) {
-                    diff += 24 * 60;
-                }
-                const hours = Math.floor(diff / 60);
-                const minutes = diff % 60;
-                return `${hours}h ${minutes}m`;
-            }
-
-            function generateTable() {
-                const startTime = startTimeInput.value;
-                const endTime = endTimeInput.value;
-                const startMinutes = parseTime(startTime);
-                const endMinutes = parseTime(endTime);
+            
+            // Generate time intervals
+            function generateTimeIntervals(start, end) {
+                const intervals = [];
+                const intervalPattern = [0, 16, 31, 46]; // Minutes within each hour
                 
-                timeIntervalDisplay.textContent = calculateInterval(startTime, endTime);
-                tableBody.innerHTML = '';
-                selectedCell = null;
-
-                const timePoints = [0, 16, 31, 46];
+                let current = start;
                 
-                let currentMinutes = startMinutes;
-                const finalMinutes = endMinutes > startMinutes ? endMinutes : endMinutes + 24 * 60;
-
-                while (currentMinutes < finalMinutes) {
-                    const minuteOfHour = currentMinutes % 60;
-                    if (timePoints.includes(minuteOfHour)) {
-                         const timeString = formatTime(currentMinutes);
-                         const row = document.createElement('tr');
-                         row.innerHTML = `
-                             <td>${timeString}</td>
-                             <td contenteditable="true">0</td>
-                             <td contenteditable="true">0</td>
-                             <td contenteditable="true">0</td>
-                             <td contenteditable="true">0</td>
-                         `;
-                         tableBody.appendChild(row);
+                while (current <= end) {
+                    const hour = Math.floor(current / 60);
+                    const minute = current % 60;
+                    
+                    // Check if current minute matches any of our intervals
+                    if (intervalPattern.includes(minute)) {
+                        intervals.push(formatTime(current));
                     }
-                    currentMinutes++;
+                    
+                    current++;
                 }
                 
-                addCellClickListeners();
+                return intervals;
             }
-
-            function addCellClickListeners() {
-                const dataCells = tableBody.querySelectorAll('td:not(:first-child)');
-                dataCells.forEach(cell => {
-                    cell.addEventListener('click', () => {
-                        if (selectedCell) {
-                            selectedCell.classList.remove('selected');
-                        }
-                        selectedCell = cell;
-                        selectedCell.classList.add('selected');
-                    });
+            
+            // Select a cell
+            function selectCell(cell) {
+                if (selectedCell) {
+                    selectedCell.classList.remove('selected');
+                }
+                
+                selectedCell = cell;
+                cell.classList.add('selected');
+                cell.focus();
+            }
+            
+            // Edit cell directly
+            function editCell(cell) {
+                selectCell(cell);
+                
+                const currentValue = cell.textContent;
+                cell.innerHTML = `<input type="number" min="0" value="${currentValue}">`;
+                const input = cell.querySelector('input');
+                input.focus();
+                
+                input.addEventListener('blur', () => {
+                    cell.textContent = input.value || '0';
+                    addCellListeners(cell);
+                });
+                
+                input.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter') {
+                        input.blur();
+                    }
                 });
             }
-
-            function adjustValue(delta) {
-                if (!selectedCell) {
-                    alert('Please select a cell first.');
-                    return;
-                }
-                let currentValue = parseInt(selectedCell.textContent, 10);
-                let newValue = currentValue + delta;
-                if (newValue < 0) {
-                    newValue = 0;
-                }
-                selectedCell.textContent = newValue;
+            
+            // Add event listeners to a cell
+            function addCellListeners(cell) {
+                cell.addEventListener('click', () => selectCell(cell));
+                cell.addEventListener('dblclick', () => editCell(cell));
+                cell.addEventListener('keydown', handleCellKeydown);
             }
-
-            function exportToCsv() {
-                const rows = document.querySelectorAll("#data-table tr");
-                const csv = [];
-                for (let i = 0; i < rows.length; i++) {
-                    const row = [], cols = rows[i].querySelectorAll("td, th");
-                    for (let j = 0; j < cols.length; j++) {
-                        let cellText = cols[j].innerText.replace(/"/g, '""');
-                        if (cellText.includes(',') || cellText.includes('\n') || cellText.includes('"')) {
-                            cellText = `"${cellText}"`;
-                        }
-                        row.push(cellText);
+            
+            // Handle keyboard events on cells
+            function handleCellKeydown(e) {
+                if (e.key === '+' || e.key === '=') {
+                    e.preventDefault();
+                    incrementCell();
+                } else if (e.key === '-' || e.key === '_') {
+                    e.preventDefault();
+                    decrementCell();
+                } else if (e.key === 'Enter') {
+                    e.preventDefault();
+                    if (selectedCell) {
+                        editCell(selectedCell);
                     }
-                    csv.push(row.join(","));
-                }
-                const csvString = csv.join("\n");
-                
-                const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
-                const link = document.createElement('a');
-                if (link.download !== undefined) {
-                    const url = URL.createObjectURL(blob);
-                    link.setAttribute('href', url);
-                    link.setAttribute('download', 'counting_sheet.csv');
-                    link.style.visibility = 'hidden';
-                    document.body.appendChild(link);
-                    link.click();
-                    document.body.removeChild(link);
                 }
             }
-
-            function importFromCsv(event) {
-                const file = event.target.files[0];
-                if (!file) {
-                    return;
+            
+            // Decrement selected cell value
+            function decrementCell() {
+                if (selectedCell && !selectedCell.classList.contains('time-column')) {
+                    let value = parseInt(selectedCell.textContent);
+                    if (isNaN(value)) value = 0;
+                    if (value > 0) {
+                        selectedCell.textContent = value - 1;
+                    }
                 }
+            }
+            
+            // Increment selected cell value
+            function incrementCell() {
+                if (selectedCell && !selectedCell.classList.contains('time-column')) {
+                    let value = parseInt(selectedCell.textContent);
+                    if (isNaN(value)) value = 0;
+                    selectedCell.textContent = value + 1;
+                }
+            }
+            
+            // Adjust zoom level
+            function adjustZoom(factor) {
+                currentZoom += factor;
+                
+                // Limit zoom range
+                currentZoom = Math.max(0.5, Math.min(3, currentZoom));
+                
+                document.getElementById('counting-table').style.transform = `scale(${currentZoom})`;
+            }
+            
+            // Reset zoom to 100%
+            function resetZoom() {
+                currentZoom = 1;
+                document.getElementById('counting-table').style.transform = 'scale(1)';
+            }
+            
+            // Export table data to CSV
+            function exportToCSV() {
+                const rows = [];
+                
+                // Add header row
+                const headerCells = document.querySelectorAll('#counting-table thead th');
+                const headerRow = Array.from(headerCells).map(cell => `"${cell.textContent}"`).join(',');
+                rows.push(headerRow);
+                
+                // Add data rows
+                const dataRows = document.querySelectorAll('#counting-table tbody tr');
+                dataRows.forEach(row => {
+                    const cells = row.querySelectorAll('td');
+                    const rowData = Array.from(cells).map(cell => `"${cell.textContent}"`).join(',');
+                    rows.push(rowData);
+                });
+                
+                const csvContent = rows.join('\n');
+                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                const url = URL.createObjectURL(blob);
+                
+                const link = document.createElement('a');
+                link.setAttribute('href', url);
+                link.setAttribute('download', 'counting_sheet.csv');
+                link.style.display = 'none';
+                
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
+            
+            // Import data from CSV file
+            function importFromCSV(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+                
                 const reader = new FileReader();
                 reader.onload = function(e) {
-                    const contents = e.target.result;
-                    const lines = contents.split('\n').map(line => line.trim()).filter(line => line);
-                    const headerRow = lines[0].split(',').map(h => h.replace(/^"|"$/g, '').trim());
-
-                    const expectedHeaders = ["Time", "Person/vehicle in", "Person/vehicle out", "Delivery person/commercial vehicle in", "Delivery person/commercial vehicle out"];
-                    if (JSON.stringify(headerRow) !== JSON.stringify(expectedHeaders)) {
-                        alert("Error: The CSV file headers do not match the expected format.");
-                        return;
-                    }
-
-                    tableBody.innerHTML = '';
-                    for (let i = 1; i < lines.length; i++) {
-                        const rowData = lines[i].split(',').map(d => d.replace(/^"|"$/g, '').trim());
-                        const row = document.createElement('tr');
-                        row.innerHTML = `
-                            <td>${rowData[0]}</td>
-                            <td contenteditable="true">${rowData[1] || '0'}</td>
-                            <td contenteditable="true">${rowData[2] || '0'}</td>
-                            <td contenteditable="true">${rowData[3] || '0'}</td>
-                            <td contenteditable="true">${rowData[4] || '0'}</td>
-                        `;
-                        tableBody.appendChild(row);
-                    }
-                    addCellClickListeners();
+                    const content = e.target.result;
+                    parseCSV(content);
                 };
                 reader.readAsText(file);
             }
-
-            // Pinch-to-zoom and mouse wheel zoom functionality
-            let scale = 1;
-            tableContainer.addEventListener('wheel', (event) => {
-                event.preventDefault();
-                scale += event.deltaY * -0.01;
-                scale = Math.min(Math.max(0.5, scale), 3);
-                dataTable.style.transform = `scale(${scale})`;
-            });
             
-            let lastDist = 0;
-            tableContainer.addEventListener('touchstart', (event) => {
-                if (event.touches.length === 2) {
-                    lastDist = Math.hypot(
-                        event.touches[1].pageX - event.touches[0].pageX,
-                        event.touches[1].pageY - event.touches[0].pageY
-                    );
+            // Parse CSV content and populate table
+            function parseCSV(csvContent) {
+                const rows = csvContent.split('\n');
+                
+                // Skip header row and process data rows
+                for (let i = 1; i < rows.length; i++) {
+                    if (!rows[i].trim()) continue;
+                    
+                    const cells = rows[i].split(',').map(cell => {
+                        // Remove quotes if present
+                        return cell.replace(/^"|"$/g, '');
+                    });
+                    
+                    // Find the corresponding row in the table
+                    const time = cells[0];
+                    const tableRows = document.querySelectorAll('#counting-table tbody tr');
+                    
+                    for (const row of tableRows) {
+                        if (row.firstChild.textContent === time) {
+                            const dataCells = row.querySelectorAll('td:not(.time-column)');
+                            for (let j = 0; j < dataCells.length; j++) {
+                                if (j + 1 < cells.length) {
+                                    dataCells[j].textContent = cells[j + 1];
+                                }
+                            }
+                            break;
+                        }
+                    }
                 }
-            });
-
-            tableContainer.addEventListener('touchmove', (event) => {
-                if (event.touches.length === 2) {
-                    const dist = Math.hypot(
-                        event.touches[1].pageX - event.touches[0].pageX,
-                        event.touches[1].pageY - event.touches[0].pageY
-                    );
-                    const delta = dist - lastDist;
-                    scale += delta * 0.005;
-                    scale = Math.min(Math.max(0.5, scale), 3);
-                    dataTable.style.transform = `scale(${scale})`;
-                    lastDist = dist;
-                    event.preventDefault();
-                }
-            });
-
-            // Event Listeners
-            generateBtn.addEventListener('click', generateTable);
-            incrementBtn.addEventListener('click', () => adjustValue(1));
-            decrementBtn.addEventListener('click', () => adjustValue(-1));
-            exportBtn.addEventListener('click', exportToCsv);
-            importBtn.addEventListener('click', () => importFileInput.click());
-            importFileInput.addEventListener('change', importFromCsv);
-
-            // Initial generation on page load
-            generateTable();
+                
+                alert('CSV data imported successfully!');
+            }
         });
+        
+        // Register service worker for PWA functionality
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('sw.js')
+                    .then(function(registration) {
+                        console.log('ServiceWorker registration successful with scope: ', registration.scope);
+                    })
+                    .catch(function(error) {
+                        console.log('ServiceWorker registration failed: ', error);
+                    });
+            });
+        }
     </script>
 </body>
 </html>
