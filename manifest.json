@@ -1,6 +1,6 @@
 {
     "name": "Counting Sheet",
-    "short_name": "Counting",
+    "short_name": "Counter",
     "description": "A simple offline counting sheet for tracking data.",
     "start_url": "/index.html",
     "display": "standalone",
